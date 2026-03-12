@@ -1,22 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'theme/app_theme.dart';
-import 'screens/splash_screen.dart';
-import 'screens/onboarding/onboarding_screen_1.dart';
-import 'screens/onboarding/onboarding_screen_2.dart';
-import 'screens/onboarding/onboarding_screen_3.dart';
-import 'screens/home_screen.dart';
-import 'screens/escape_environment_screen.dart';
-import 'screens/escape_player_screen.dart';
-import 'screens/focus_mode_screen.dart';
-import 'screens/sleep_mode_screen.dart';
-import 'screens/statistics_screen.dart';
-import 'screens/calm_places_map_screen.dart';
-import 'screens/settings_screen.dart';
+import 'core/theme/app_theme.dart';
+import 'core/routing/splash_screen.dart';
+import 'core/routing/onboarding/onboarding_screen_1.dart';
+import 'core/routing/onboarding/onboarding_screen_2.dart';
+import 'core/routing/onboarding/onboarding_screen_3.dart';
+import 'core/routing/home_screen.dart';
+import 'features/escape/presentation/escape_environment_screen.dart';
+import 'features/escape/presentation/escape_player_screen.dart';
+import 'features/focus/presentation/focus_mode_screen.dart';
+import 'features/sleep/presentation/sleep_mode_screen.dart';
+import 'features/stats/presentation/statistics_screen.dart';
+import 'features/stats/presentation/stats_controller.dart';
+import 'features/escape/presentation/calm_places_map_screen.dart';
+import 'features/settings/presentation/settings_screen.dart';
+import 'features/settings/presentation/premium_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
-void main() {
-  runApp(const NuuApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.nuu.app.channel.audio',
+    androidNotificationChannelName: 'NUU Ambient Audio',
+    androidNotificationOngoing: true,
+  );
+
+  final prefs = await SharedPreferences.getInstance();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const NuuApp(),
+    ),
+  );
 }
 
 class NuuApp extends StatelessWidget {
@@ -85,6 +107,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/premium',
+      builder: (context, state) => const PremiumScreen(),
     ),
   ],
 );
