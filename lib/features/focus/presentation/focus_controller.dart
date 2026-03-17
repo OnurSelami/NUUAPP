@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../audio/presentation/audio_mixer_controller.dart';
+import '../../stats/presentation/stats_controller.dart';
 
 class FocusState {
   final int selectedDuration; // 25 or 45 min
@@ -36,10 +37,11 @@ class FocusState {
 
 class FocusController extends Notifier<FocusState> {
   Timer? _timer;
+  DateTime? _sessionStart;
 
   static const focusLayers = [
-    AudioLayer(id: 'focus_drone', name: 'Deep Focus Drone', source: 'https://cdn.pixabay.com/audio/2023/10/30/audio_bca552fe19.mp3', defaultVolume: 0.6),
-    AudioLayer(id: 'coffee_shop', name: 'Coffee Shop Ambience', source: 'https://cdn.pixabay.com/audio/2024/02/14/audio_8a506fddca.mp3', defaultVolume: 0.3),
+    AudioLayer.asset(id: 'focus_drone', name: 'Deep Focus Drone', assetPath: 'assets/audio/focus_drone.mp3', defaultVolume: 0.6),
+    AudioLayer.asset(id: 'coffee_shop', name: 'Coffee Shop Ambience', assetPath: 'assets/audio/coffee_shop.mp3', defaultVolume: 0.3),
   ];
 
   @override
@@ -69,10 +71,9 @@ class FocusController extends Notifier<FocusState> {
     }
 
     state = state.copyWith(isPlaying: true);
+    _sessionStart = DateTime.now();
 
-    ref.read(audioMixerProvider.notifier).loadEnvironment(focusLayers).then((_) {
-      ref.read(audioMixerProvider.notifier).play();
-    });
+    ref.read(audioMixerProvider.notifier).loadEnvironment(focusLayers, autoPlay: true);
 
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -90,6 +91,22 @@ class FocusController extends Notifier<FocusState> {
     state = state.copyWith(isPlaying: false);
     _timer?.cancel();
     ref.read(audioMixerProvider.notifier).pause();
+    _saveProgress();
+  }
+
+  void stopSession() {
+    _pause();
+    state = state.copyWith(minRemaining: state.selectedDuration, secRemaining: 0);
+  }
+
+  void _saveProgress() {
+    if (_sessionStart != null) {
+      final elapsed = DateTime.now().difference(_sessionStart!).inMinutes;
+      if (elapsed > 0) {
+        ref.read(statsProvider.notifier).addSession(elapsed, 'focus');
+      }
+      _sessionStart = null;
+    }
   }
 
   void _endSession() {
@@ -101,6 +118,7 @@ class FocusController extends Notifier<FocusState> {
       isSessionComplete: true,
     );
     ref.read(audioMixerProvider.notifier).fadeOutAndStop(const Duration(seconds: 5));
+    _saveProgress();
   }
 }
 

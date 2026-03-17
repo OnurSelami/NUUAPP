@@ -14,11 +14,10 @@ class BottomNav extends StatelessWidget {
 
     final navItems = <_NavItem>[
       _NavItem(icon: LucideIcons.home, path: '/home', label: 'Home'),
-      _NavItem(icon: LucideIcons.compass, path: '/escape', label: 'Escape'),
-      _NavItem(icon: LucideIcons.target, path: '/focus', label: 'Focus'),
-      _NavItem(icon: LucideIcons.moon, path: '/sleep', label: 'Sleep'),
-      _NavItem(icon: LucideIcons.barChart3, path: '/statistics', label: 'Stats'),
-      _NavItem(icon: LucideIcons.settings, path: '/settings', label: 'Settings'),
+      _NavItem(icon: LucideIcons.leaf, path: '/focus', label: 'Reset'),
+      _NavItem(icon: LucideIcons.mapPin, path: '/calm-places', label: 'Places'),
+      _NavItem(icon: LucideIcons.headphones, path: '/escape', label: 'Sounds'),
+      _NavItem(icon: LucideIcons.user, path: '/settings', label: 'Profile'),
     ];
 
     return Positioned(
@@ -26,7 +25,7 @@ class BottomNav extends StatelessWidget {
       left: 0,
       right: 0,
       child: Container(
-        padding: const EdgeInsets.only(bottom: 32),
+        padding: const EdgeInsets.only(bottom: 16), // Lowered from 32
         alignment: Alignment.center,
         child: Container(
           decoration: const BoxDecoration(
@@ -52,7 +51,8 @@ class BottomNav extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: navItems.map((item) {
-                    final isActive = currentPath == item.path;
+                    final isActive = currentPath == item.path || 
+                       (currentPath.startsWith(item.path) && item.path != '/home');
                     return GestureDetector(
                       onTap: () => context.go(item.path),
                       child: AnimatedContainer(

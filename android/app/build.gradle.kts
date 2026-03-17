@@ -37,6 +37,11 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    // Prevent aapt from compressing audio assets (corrupts MP3 playback)
+    aaptOptions {
+        noCompress += listOf("mp3", "ogg", "wav", "flac")
+    }
 }
 
 flutter {

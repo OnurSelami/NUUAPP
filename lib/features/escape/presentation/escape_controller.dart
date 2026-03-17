@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../audio/presentation/audio_mixer_controller.dart';
+import '../../stats/presentation/stats_controller.dart';
 import '../domain/escape_models.dart';
-// Dummy data for environments
+
+// Environment data
 final availableEnvironments = [
   Environment(
     id: 'ocean',
@@ -13,8 +15,7 @@ final availableEnvironments = [
     baseColor: const Color(0xFF1E3A5F),
     imageUrl: 'https://images.unsplash.com/photo-1662056694801-85115a6ae3b1?w=800&q=80',
     audioLayers: [
-      const AudioLayer(id: 'waves_base', name: 'Gentle Waves', source: 'https://cdn.pixabay.com/audio/2022/06/07/audio_b9bd4170e4.mp3', defaultVolume: 0.6),
-      const AudioLayer(id: 'seagulls', name: 'Seagulls', source: 'https://cdn.pixabay.com/audio/2024/11/04/audio_81a2742781.mp3', defaultVolume: 0.2),
+      const AudioLayer.asset(id: 'waves_base', name: 'Gentle Waves', assetPath: 'assets/audio/ocean_base.mp3', defaultVolume: 0.6),
     ],
   ),
   Environment(
@@ -25,8 +26,8 @@ final availableEnvironments = [
     baseColor: const Color(0xFF1A2742),
     imageUrl: 'https://images.unsplash.com/photo-1759328502259-3e0eeecc02d5?w=800&q=80',
     audioLayers: [
-      const AudioLayer(id: 'rain_base', name: 'Light Rain', source: 'https://cdn.pixabay.com/audio/2022/10/30/audio_e0908e498d.mp3', defaultVolume: 0.7),
-      const AudioLayer(id: 'thunder_distant', name: 'Distant Thunder', source: 'https://cdn.pixabay.com/audio/2022/07/27/audio_b1fca38cad.mp3', defaultVolume: 0.3),
+      const AudioLayer.asset(id: 'rain_base', name: 'Light Rain', assetPath: 'assets/audio/rain_base.mp3', defaultVolume: 0.7),
+      const AudioLayer.asset(id: 'thunder_distant', name: 'Distant Thunder', assetPath: 'assets/audio/thunder.mp3', defaultVolume: 0.3),
     ],
   ),
   Environment(
@@ -37,9 +38,10 @@ final availableEnvironments = [
     baseColor: const Color(0xFF1A3D2C),
     imageUrl: 'https://images.unsplash.com/photo-1658509800439-dee8fa351395?w=800&q=80',
     audioLayers: [
-      const AudioLayer(id: 'forest_base', name: 'Wind in Trees', source: 'https://cdn.pixabay.com/audio/2022/08/31/audio_419263cae2.mp3', defaultVolume: 0.5),
-      const AudioLayer(id: 'birds', name: 'Morning Birds', source: 'https://cdn.pixabay.com/audio/2022/03/09/audio_c5e82e1818.mp3', defaultVolume: 0.4),
+      const AudioLayer.asset(id: 'forest_base', name: 'Wind in Trees', assetPath: 'assets/audio/forest_base.mp3', defaultVolume: 0.5),
+      const AudioLayer.asset(id: 'birds', name: 'Morning Birds', assetPath: 'assets/audio/birds.mp3', defaultVolume: 0.4),
     ],
+    isPremium: true,
   ),
   Environment(
     id: 'space',
@@ -49,8 +51,9 @@ final availableEnvironments = [
     baseColor: const Color(0xFF0F1B3D),
     imageUrl: 'https://images.unsplash.com/photo-1629446488105-122120352a03?w=800&q=80',
     audioLayers: [
-      const AudioLayer(id: 'space_drone', name: 'Deep Space Drone', source: 'https://cdn.pixabay.com/audio/2023/09/04/audio_9bba0e7fd1.mp3', defaultVolume: 0.8),
+      const AudioLayer.asset(id: 'space_drone', name: 'Deep Space Drone', assetPath: 'assets/audio/space_drone.mp3', defaultVolume: 0.8),
     ],
+    isPremium: true,
   ),
 ];
 
@@ -62,26 +65,24 @@ class EscapeController extends Notifier<EscapeState> {
 
   void selectEnvironment(Environment env) {
     state = state.copyWith(currentEnvironment: env, isPlaying: false);
-    ref.read(audioMixerProvider.notifier).loadEnvironment(env.audioLayers);
+    // Don't load audio here - load it when the session starts
   }
 
+  /// Start a session with the given number of minutes
   void startSession(int minutes) {
+    final totalSec = minutes * 60;
+    final env = state.currentEnvironment;
+    if (env == null) return;
+
     state = state.copyWith(
       isPlaying: true,
-      initialMin: minutes,
-      minRemaining: minutes,
+      totalSeconds: totalSec,
+      secondsRemaining: totalSec,
     );
 
-    ref.read(audioMixerProvider.notifier).play();
-
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      if (state.minRemaining > 1) {
-        state = state.copyWith(minRemaining: state.minRemaining - 1);
-      } else {
-        _endSession();
-      }
-    });
+    // Load environment audio and auto-play when ready
+    ref.read(audioMixerProvider.notifier).loadEnvironment(env.audioLayers, autoPlay: true);
+    _startTimer();
   }
 
   void pauseSession() {
@@ -93,21 +94,38 @@ class EscapeController extends Notifier<EscapeState> {
   void resumeSession() {
     state = state.copyWith(isPlaying: true);
     ref.read(audioMixerProvider.notifier).play();
+    _startTimer();
+  }
 
+  void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      if (state.minRemaining > 1) {
-        state = state.copyWith(minRemaining: state.minRemaining - 1);
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (state.secondsRemaining > 1) {
+        state = state.copyWith(secondsRemaining: state.secondsRemaining - 1);
       } else {
         _endSession();
       }
     });
   }
 
-  void _endSession() {
+  void stopSession() {
     _timer?.cancel();
-    state = state.copyWith(isPlaying: false, minRemaining: 0);
-    ref.read(audioMixerProvider.notifier).fadeOutAndStop(const Duration(seconds: 10));
+    
+    // Calculate and save elapsed minutes
+    if (state.totalSeconds > 0) {
+      final elapsedSeconds = state.totalSeconds - state.secondsRemaining;
+      final elapsedMinutes = elapsedSeconds ~/ 60;
+      if (elapsedMinutes > 0) {
+        ref.read(statsProvider.notifier).addSession(elapsedMinutes, 'escape');
+      }
+    }
+
+    state = state.copyWith(isPlaying: false, secondsRemaining: 0, totalSeconds: 0);
+    ref.read(audioMixerProvider.notifier).fadeOutAndStop(const Duration(seconds: 2));
+  }
+
+  void _endSession() {
+    stopSession();
   }
 }
 

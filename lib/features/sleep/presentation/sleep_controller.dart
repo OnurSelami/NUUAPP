@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../audio/presentation/audio_mixer_controller.dart';
+import '../../stats/presentation/stats_controller.dart';
 
 class SleepState {
   final int selectedDuration; // 0 = continuous, 15, 30, 60, 90
@@ -32,11 +33,11 @@ class SleepState {
 
 class SleepController extends Notifier<SleepState> {
   Timer? _timer;
-
+  DateTime? _sessionStart;
   static const sleepLayers = [
-    AudioLayer(id: 'deep_sleep_drone', name: 'Deep Sleep Drone', source: 'https://cdn.pixabay.com/audio/2023/04/11/audio_14942ec498.mp3', defaultVolume: 0.5),
-    AudioLayer(id: 'soft_rain', name: 'Soft Rain', source: 'https://cdn.pixabay.com/audio/2022/10/30/audio_e0908e498d.mp3', defaultVolume: 0.3),
-    AudioLayer(id: 'white_noise', name: 'White Noise', source: 'https://cdn.pixabay.com/audio/2022/03/15/audio_115f075bbb.mp3', defaultVolume: 0.1),
+    AudioLayer.asset(id: 'deep_sleep_drone', name: 'Deep Sleep Drone', assetPath: 'assets/audio/deep_sleep.mp3', defaultVolume: 0.5),
+    AudioLayer.asset(id: 'soft_rain', name: 'Soft Rain', assetPath: 'assets/audio/rain_base.mp3', defaultVolume: 0.3),
+    AudioLayer.asset(id: 'white_noise', name: 'White Noise', assetPath: 'assets/audio/white_noise.mp3', defaultVolume: 0.1),
   ];
 
   @override
@@ -65,10 +66,9 @@ class SleepController extends Notifier<SleepState> {
     }
 
     state = state.copyWith(isPlaying: true);
+    _sessionStart = DateTime.now();
 
-    ref.read(audioMixerProvider.notifier).loadEnvironment(sleepLayers).then((_) {
-      ref.read(audioMixerProvider.notifier).play();
-    });
+    ref.read(audioMixerProvider.notifier).loadEnvironment(sleepLayers, autoPlay: true);
 
     _timer?.cancel();
 
@@ -87,12 +87,29 @@ class SleepController extends Notifier<SleepState> {
     state = state.copyWith(isPlaying: false);
     _timer?.cancel();
     ref.read(audioMixerProvider.notifier).pause();
+    _saveProgress();
+  }
+
+  void stopSession() {
+    _pause();
+    state = state.copyWith(minRemaining: 0);
+  }
+
+  void _saveProgress() {
+    if (_sessionStart != null) {
+      final elapsed = DateTime.now().difference(_sessionStart!).inMinutes;
+      if (elapsed > 0) {
+        ref.read(statsProvider.notifier).addSession(elapsed, 'sleep');
+      }
+      _sessionStart = null;
+    }
   }
 
   void _endSession() {
     _timer?.cancel();
     state = state.copyWith(isPlaying: false, minRemaining: 0);
     ref.read(audioMixerProvider.notifier).fadeOutAndStop(const Duration(seconds: 30));
+    _saveProgress();
   }
 }
 

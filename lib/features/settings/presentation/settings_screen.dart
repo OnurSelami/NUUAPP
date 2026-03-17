@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/screen_wrapper.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/bottom_nav.dart';
+import '../../auth/presentation/auth_controller.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ScreenWrapper(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -118,9 +121,24 @@ class SettingsScreen extends StatelessWidget {
                     
                     _SettingsGroup(
                       items: [
-                        _SettingItem(icon: LucideIcons.headphones, title: 'Sound Quality', value: 'High'),
-                        _SettingItem(icon: LucideIcons.downloadCloud, title: 'Offline Downloads', hasToggle: true),
-                        _SettingItem(icon: LucideIcons.volume2, title: 'Default Volume', value: '70%'),
+                        _SettingItem(
+                          icon: LucideIcons.headphones, 
+                          title: 'Sound Quality', 
+                          value: 'High',
+                          onTap: () => _showComingSoon(context),
+                        ),
+                        _SettingItem(
+                          icon: LucideIcons.downloadCloud, 
+                          title: 'Offline Downloads', 
+                          hasToggle: true,
+                          onTap: () => _showComingSoon(context),
+                        ),
+                        _SettingItem(
+                          icon: LucideIcons.volume2, 
+                          title: 'Default Volume', 
+                          value: '70%',
+                          onTap: () => _showComingSoon(context),
+                        ),
                       ],
                     ).animate().fadeIn(duration: 600.ms, delay: 500.ms),
 
@@ -133,7 +151,13 @@ class SettingsScreen extends StatelessWidget {
                     
                     _SettingsGroup(
                       items: [
-                        _SettingItem(icon: LucideIcons.moon, title: 'Dark Mode', hasToggle: true, isToggled: true),
+                        _SettingItem(
+                          icon: LucideIcons.moon, 
+                          title: 'Dark Mode', 
+                          hasToggle: true, 
+                          isToggled: true,
+                          onTap: () => _showComingSoon(context),
+                        ),
                       ],
                     ).animate().fadeIn(duration: 600.ms, delay: 700.ms),
 
@@ -146,7 +170,13 @@ class SettingsScreen extends StatelessWidget {
                     
                     _SettingsGroup(
                       items: [
-                        _SettingItem(icon: LucideIcons.bell, title: 'Notifications', hasToggle: true, isToggled: true),
+                        _SettingItem(
+                          icon: LucideIcons.bell, 
+                          title: 'Notifications', 
+                          hasToggle: true, 
+                          isToggled: true,
+                          onTap: () => _showComingSoon(context),
+                        ),
                       ],
                     ).animate().fadeIn(duration: 600.ms, delay: 900.ms),
 
@@ -159,9 +189,21 @@ class SettingsScreen extends StatelessWidget {
                     
                     _SettingsGroup(
                       items: [
-                        _SettingItem(icon: LucideIcons.helpCircle, title: 'Help & FAQ'),
-                        _SettingItem(icon: LucideIcons.mail, title: 'Contact Support'),
-                        _SettingItem(icon: LucideIcons.shield, title: 'Privacy Policy'),
+                        _SettingItem(
+                          icon: LucideIcons.helpCircle, 
+                          title: 'Help & FAQ',
+                          onTap: () => _launchURL('https://support.nuuapp.com/faq'),
+                        ),
+                        _SettingItem(
+                          icon: LucideIcons.mail, 
+                          title: 'Contact Support',
+                          onTap: () => _launchURL('mailto:support@nuuapp.com'),
+                        ),
+                        _SettingItem(
+                          icon: LucideIcons.shield, 
+                          title: 'Privacy Policy',
+                          onTap: () => _launchURL('https://nuuapp.com/privacy'),
+                        ),
                       ],
                     ).animate().fadeIn(duration: 600.ms, delay: 1100.ms),
                     
@@ -169,7 +211,10 @@ class SettingsScreen extends StatelessWidget {
 
                     // LOG OUT
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        ref.read(authControllerProvider.notifier).signOut();
+                        context.go('/auth');
+                      },
                       child: const Center(
                         child: Text(
                           'Log Out',
@@ -193,6 +238,23 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
+
+  void _showComingSoon(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('This feature is coming in a future update!'),
+        backgroundColor: AppColors.bgDark,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _launchURL(String urlString) async {
+    final url = Uri.parse(urlString);
+    try {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (_) {}
+  }
 }
 
 class _SettingsGroup extends StatelessWidget {
@@ -209,29 +271,34 @@ class _SettingsGroup extends StatelessWidget {
           final item = entry.value;
           return Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Row(
-                  children: [
-                    Icon(item.icon, color: Colors.white70, size: 20),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(item.title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
-                    ),
-                    if (item.value != null)
-                      Text(item.value!, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-                    if (item.value != null)
-                      const SizedBox(width: 8),
-                    if (item.hasToggle)
-                      Switch(
-                        value: item.isToggled,
-                        onChanged: (v) {},
-                        activeThumbColor: AppColors.accent,
-                        activeTrackColor: AppColors.accent.withValues(alpha: 0.3),
-                      )
-                    else
-                      Icon(LucideIcons.chevronRight, color: AppColors.textMuted, size: 18),
-                  ],
+              InkWell(
+                onTap: item.onTap,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Row(
+                    children: [
+                      Icon(item.icon, color: Colors.white70, size: 20),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(item.title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
+                      ),
+                      if (item.value != null)
+                        Text(item.value!, style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                      if (item.value != null)
+                        const SizedBox(width: 8),
+                      if (item.hasToggle)
+                        Switch(
+                          value: item.isToggled,
+                          onChanged: (v) {
+                            if (item.onTap != null) item.onTap!();
+                          },
+                          activeThumbColor: AppColors.accent,
+                          activeTrackColor: AppColors.accent.withValues(alpha: 0.3),
+                        )
+                      else
+                        Icon(LucideIcons.chevronRight, color: AppColors.textMuted, size: 18),
+                    ],
+                  ),
                 ),
               ),
               if (i < items.length - 1)
@@ -250,5 +317,14 @@ class _SettingItem {
   final bool hasToggle;
   final bool isToggled;
   final String? value;
-  _SettingItem({required this.icon, required this.title, this.hasToggle = false, this.isToggled = false, this.value});
+  final VoidCallback? onTap;
+
+  _SettingItem({
+    required this.icon, 
+    required this.title, 
+    this.hasToggle = false, 
+    this.isToggled = false, 
+    this.value,
+    this.onTap,
+  });
 }

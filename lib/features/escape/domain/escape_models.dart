@@ -9,6 +9,7 @@ class Environment {
   final Color baseColor;
   final String imageUrl;
   final List<AudioLayer> audioLayers;
+  final bool isPremium;
 
   const Environment({
     required this.id,
@@ -18,33 +19,43 @@ class Environment {
     required this.baseColor,
     required this.imageUrl,
     required this.audioLayers,
+    this.isPremium = false,
   });
 }
 
 class EscapeState {
   final Environment? currentEnvironment;
   final bool isPlaying;
-  final int minRemaining;
-  final int initialMin;
+  final int secondsRemaining;
+  final int totalSeconds;
 
   const EscapeState({
     this.currentEnvironment,
     this.isPlaying = false,
-    this.minRemaining = 0,
-    this.initialMin = 0,
+    this.secondsRemaining = 0,
+    this.totalSeconds = 0,
   });
+
+  /// Helper to get minutes remaining for display
+  int get minutesDisplay => secondsRemaining ~/ 60;
+
+  /// Helper to get seconds part for display
+  int get secondsDisplay => secondsRemaining % 60;
+
+  /// Helper to get progress (0.0 to 1.0)
+  double get progress => totalSeconds > 0 ? 1.0 - (secondsRemaining / totalSeconds) : 0.0;
 
   EscapeState copyWith({
     Environment? currentEnvironment,
     bool? isPlaying,
-    int? minRemaining,
-    int? initialMin,
+    int? secondsRemaining,
+    int? totalSeconds,
   }) {
     return EscapeState(
       currentEnvironment: currentEnvironment ?? this.currentEnvironment,
       isPlaying: isPlaying ?? this.isPlaying,
-      minRemaining: minRemaining ?? this.minRemaining,
-      initialMin: initialMin ?? this.initialMin,
+      secondsRemaining: secondsRemaining ?? this.secondsRemaining,
+      totalSeconds: totalSeconds ?? this.totalSeconds,
     );
   }
 }

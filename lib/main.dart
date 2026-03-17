@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/theme/app_theme.dart';
-import 'core/routing/splash_screen.dart';
 import 'core/routing/onboarding/onboarding_screen_1.dart';
 import 'core/routing/onboarding/onboarding_screen_2.dart';
 import 'core/routing/onboarding/onboarding_screen_3.dart';
@@ -14,21 +13,20 @@ import 'features/focus/presentation/focus_mode_screen.dart';
 import 'features/sleep/presentation/sleep_mode_screen.dart';
 import 'features/stats/presentation/statistics_screen.dart';
 import 'features/stats/presentation/stats_controller.dart';
-import 'features/escape/presentation/calm_places_map_screen.dart';
+import 'features/calm_places/presentation/calm_places_home_screen.dart';
+import 'features/calm_places/presentation/calm_places_map_screen.dart';
+import 'features/calm_places/presentation/calm_places_list_screen.dart';
+import 'features/calm_places/presentation/saved_places_screen.dart';
 import 'features/settings/presentation/settings_screen.dart';
 import 'features/settings/presentation/premium_screen.dart';
+import 'features/auth/presentation/auth_screen.dart';
+import 'features/calm_pulse/presentation/calm_pulse_screen.dart';
+import 'features/tactile/presentation/tactile_menu_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.nuu.app.channel.audio',
-    androidNotificationChannelName: 'NUU Ambient Audio',
-    androidNotificationOngoing: true,
-  );
-
   final prefs = await SharedPreferences.getInstance();
 
   runApp(
@@ -56,11 +54,11 @@ class NuuApp extends StatelessWidget {
 }
 
 final GoRouter _router = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/auth',
   routes: [
     GoRoute(
-      path: '/',
-      builder: (context, state) => const SplashScreen(),
+      path: '/auth',
+      builder: (context, state) => const AuthScreen(),
     ),
     GoRoute(
       path: '/onboarding-1',
@@ -102,7 +100,19 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
       path: '/calm-places',
+      builder: (context, state) => const CalmPlacesHomeScreen(),
+    ),
+    GoRoute(
+      path: '/calm-places/map',
       builder: (context, state) => const CalmPlacesMapScreen(),
+    ),
+    GoRoute(
+      path: '/calm-places/list',
+      builder: (context, state) => const CalmPlacesListScreen(),
+    ),
+    GoRoute(
+      path: '/calm-places/saved',
+      builder: (context, state) => const SavedPlacesScreen(),
     ),
     GoRoute(
       path: '/settings',
@@ -111,6 +121,14 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/premium',
       builder: (context, state) => const PremiumScreen(),
+    ),
+    GoRoute(
+      path: '/calm-pulse',
+      builder: (context, state) => const CalmPulseScreen(),
+    ),
+    GoRoute(
+      path: '/tactile',
+      builder: (context, state) => const TactileMenuScreen(),
     ),
   ],
 );

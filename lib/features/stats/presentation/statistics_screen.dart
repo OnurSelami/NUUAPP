@@ -18,146 +18,178 @@ class StatisticsScreen extends ConsumerWidget {
     
     return ScreenWrapper(
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.bgDark,
         body: Stack(
           children: [
+            // Background gradient
+            Container(
+              decoration: BoxDecoration(gradient: AppColors.bgGradient),
+            ),
             SafeArea(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 120),
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 140),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(LucideIcons.barChart3, color: AppColors.accent, size: 28),
-                        const SizedBox(width: 12),
-                        const Text(
-                          'Your Journey',
-                          style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ).animate().fadeIn(duration: 600.ms),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Track your moments of calm and focus',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-                    ).animate().fadeIn(duration: 600.ms, delay: 100.ms),
-
-                    const SizedBox(height: 32),
-
-                    // Weekly Overview
-                    Row(
-                      children: [
-                        _StatCard(
-                          title: 'Total Mindful',
-                          value: '${(stats.totalMinutes / 60).floor()}',
-                          unit: 'hours',
-                          icon: LucideIcons.clock,
-                        ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideX(begin: -0.1, end: 0),
-                        const SizedBox(width: 16),
-                        _StatCard(
-                          title: 'Current Streak',
-                          value: '${stats.currentStreak}',
-                          unit: 'days',
-                          icon: LucideIcons.flame,
-                          isHighlight: true,
-                        ).animate().fadeIn(duration: 500.ms, delay: 300.ms).slideX(begin: 0.1, end: 0),
-                      ],
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Weekly Summary Breakdown
-                    Row(
-                      children: [
-                        const _SmallStatCard(title: 'Focus', value: '4.2', unit: 'hrs', color: AppColors.accent),
-                        const SizedBox(width: 12),
-                        const _SmallStatCard(title: 'Sleep', value: '32', unit: 'hrs', color: Color(0xFF8892B0)),
-                        const SizedBox(width: 12),
-                        const _SmallStatCard(title: 'Escape', value: '2.5', unit: 'hrs', color: Color(0xFF64FFDA)),
-                      ],
-                    ).animate().fadeIn(duration: 500.ms, delay: 350.ms),
-
-                    const SizedBox(height: 32),
-
-                    // Weekly chart placeholder
+                    // Header
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'This Week',
-                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                          'YOUR JOURNEY',
+                          style: TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 4.0),
                         ),
-                        Row(
-                          children: const [
-                            _LegendDot(color: AppColors.accent, label: 'Focus'),
-                            SizedBox(width: 8),
-                            _LegendDot(color: Color(0xFF8892B0), label: 'Sleep'),
-                            SizedBox(width: 8),
-                            _LegendDot(color: Color(0xFF64FFDA), label: 'Escape'),
-                          ],
-                        ),
+                        Icon(LucideIcons.barChart2, color: AppColors.sageGreen, size: 24),
                       ],
-                    ).animate().fadeIn(duration: 600.ms, delay: 400.ms),
-                    const SizedBox(height: 16),
+                    ).animate().fadeIn(duration: 600.ms),
+                    
+                    const SizedBox(height: 48),
 
-                    GlassCard(
-                      padding: const EdgeInsets.all(24),
+                    // Massive Stat Display
+                    Center(
                       child: Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              _Bar(height: 40, day: 'M'),
-                              _Bar(height: 60, day: 'T'),
-                              _Bar(height: 30, day: 'W'),
-                              _Bar(height: 80, day: 'T', isToday: true),
-                              _Bar(height: 20, day: 'F'),
-                              _Bar(height: 50, day: 'S'),
-                              _Bar(height: 0, day: 'S'),
-                            ],
-                          ),
+                          Text(
+                            '${(stats.totalMinutes / 60).floor()}',
+                            style: TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 100,
+                              fontWeight: FontWeight.w200,
+                              height: 1.0,
+                              letterSpacing: -4,
+                              shadows: [Shadow(color: AppColors.sageGreen.withValues(alpha: 0.2), blurRadius: 40)],
+                            ),
+                          ).animate().fadeIn(duration: 800.ms, delay: 100.ms).slideY(begin: 0.1, end: 0),
+                          Text(
+                            'MINDFUL HOURS',
+                            style: TextStyle(color: AppColors.sageGreen, fontSize: 12, letterSpacing: 4.0, fontWeight: FontWeight.w600),
+                          ).animate().fadeIn(duration: 800.ms, delay: 200.ms),
                         ],
                       ),
-                    ).animate().fadeIn(duration: 600.ms, delay: 500.ms).scaleXY(begin: 0.95, end: 1),
+                    ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 64),
 
-                    // Monthly Progress Line Chart
+                    // Streaks & Highlights
+                    Row(
+                      children: [
+                        _StatCard(
+                          title: 'CURRENT STREAK',
+                          value: '${stats.currentStreak}',
+                          unit: 'DAYS',
+                          icon: LucideIcons.flame,
+                          isHighlight: true,
+                        ).animate().fadeIn(duration: 500.ms, delay: 300.ms).slideX(begin: -0.1, end: 0),
+                        const SizedBox(width: 16),
+                        _StatCard(
+                          title: 'SESSIONS',
+                          value: '${stats.sessionsCompleted}',
+                          unit: 'TOTAL',
+                          icon: LucideIcons.checkCircle2,
+                        ).animate().fadeIn(duration: 500.ms, delay: 400.ms).slideX(begin: 0.1, end: 0),
+                      ],
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    // Category Breakdown
                     const Text(
-                      'Monthly Progress',
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                      'BREAKDOWN',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 2.0),
+                    ).animate().fadeIn(duration: 600.ms, delay: 450.ms),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        _SmallStatCard(title: 'FOCUS', value: (stats.focusMinutes / 60).toStringAsFixed(1), unit: 'H', color: AppColors.textPrimary),
+                        const SizedBox(width: 12),
+                        _SmallStatCard(title: 'SLEEP', value: (stats.sleepMinutes / 60).toStringAsFixed(1), unit: 'H', color: AppColors.textPrimary),
+                        const SizedBox(width: 12),
+                        _SmallStatCard(title: 'ESCAPE', value: (stats.escapeMinutes / 60).toStringAsFixed(1), unit: 'H', color: AppColors.textPrimary),
+                      ],
+                    ).animate().fadeIn(duration: 500.ms, delay: 500.ms),
+
+                    const SizedBox(height: 48),
+
+                    // 7-Day Abstract Activity
+                    const Text(
+                      'PAST 7 DAYS',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 2.0),
                     ).animate().fadeIn(duration: 600.ms, delay: 550.ms),
                     const SizedBox(height: 16),
 
                     GlassCard(
-                      padding: const EdgeInsets.all(24),
-                      child: const MinimalChart(
-                        dataPoints: [0.2, 0.4, 0.3, 0.7, 0.5, 0.8, 1.0],
+                      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+                      child: Builder(
+                        builder: (context) {
+                          // Calculate dynamic heights based on last 7 days
+                          final now = DateTime.now();
+                          final weekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+                          
+                          // Get minutes for the last 7 days ending today
+                          final List<int> dailyVals = [];
+                          for (int i = 6; i >= 0; i--) {
+                            final date = now.subtract(Duration(days: i));
+                            final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+                            dailyVals.add(stats.dailyMinutes[dateStr] ?? 0);
+                          }
+                          
+                          // Find max to scale bars relative to 80.0 height
+                          final maxVal = dailyVals.isEmpty ? 0 : dailyVals.reduce((a, b) => a > b ? a : b);
+                          final List<double> heights = dailyVals.map((v) => maxVal > 0 ? (v / maxVal) * 60.0 : 0.0).toList();
+                          
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              for (int i = 0; i < 7; i++)
+                                _Bar(
+                                  height: heights[i], 
+                                  day: weekDays[i], 
+                                  isToday: i == 6 // The last element is always today in our rolling 7-day scale
+                                ),
+                            ],
+                          );
+                        }
                       ),
                     ).animate().fadeIn(duration: 600.ms, delay: 600.ms).scaleXY(begin: 0.95, end: 1),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 48),
 
+                    // Monthly Abstract Flow
+                    const Text(
+                      'MONTHLY FLOW',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 2.0),
+                    ).animate().fadeIn(duration: 600.ms, delay: 650.ms),
+                    const SizedBox(height: 16),
+
+                    GlassCard(
+                      padding: const EdgeInsets.all(24),
+                      child: MinimalChart(
+                        dataPoints: [0.1, 0.3, 0.2, 0.6, 0.4, 0.8, 1.0], // Abstract wave for aesthetics
+                      ),
+                    ).animate().fadeIn(duration: 600.ms, delay: 700.ms).scaleXY(begin: 0.95, end: 1),
+
+                    const SizedBox(height: 48),
+                    
                     // Recent achievements
                     const Text(
-                      'Recent Achievements',
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-                    ).animate().fadeIn(duration: 600.ms, delay: 600.ms),
+                      'ACHIEVEMENTS',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 2.0),
+                    ).animate().fadeIn(duration: 600.ms, delay: 750.ms),
                     const SizedBox(height: 16),
 
                     _Achievement(
-                      icon: LucideIcons.star,
+                      icon: LucideIcons.sparkles,
                       title: 'Deep Diver',
                       desc: 'Completed 5 focus sessions',
-                    ).animate().fadeIn(duration: 500.ms, delay: 700.ms),
+                    ).animate().fadeIn(duration: 500.ms, delay: 800.ms),
                     const SizedBox(height: 12),
                     _Achievement(
-                      icon: LucideIcons.moonStar,
+                      icon: LucideIcons.moon,
                       title: 'Night Owl',
                       desc: 'Used sleep mode 3 days in a row',
-                    ).animate().fadeIn(duration: 500.ms, delay: 800.ms),
+                    ).animate().fadeIn(duration: 500.ms, delay: 900.ms),
+
                   ],
                 ),
               ),
@@ -189,35 +221,31 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: GlassCard(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isHighlight ? AppColors.accent.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: isHighlight ? AppColors.accent : Colors.white, size: 20),
-            ),
-            const SizedBox(height: 16),
-            Text(title, style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-            const SizedBox(height: 4),
+            Icon(icon, color: isHighlight ? AppColors.sageGreen : AppColors.textMuted, size: 24),
+            const SizedBox(height: 32),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
                   value,
-                  style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: AppColors.textPrimary, 
+                    fontSize: 40, 
+                    fontWeight: FontWeight.w300,
+                    shadows: isHighlight ? [Shadow(color: AppColors.sageGreen.withValues(alpha: 0.3), blurRadius: 20)] : [],
+                  ),
                 ),
-                const SizedBox(width: 4),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(unit, style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                ),
+                const SizedBox(width: 8),
+                Text(unit, style: TextStyle(color: AppColors.textMuted, fontSize: 10, letterSpacing: 2)),
               ],
             ),
+            const SizedBox(height: 8),
+            Text(title, style: TextStyle(color: AppColors.textSecondary, fontSize: 10, letterSpacing: 1.5, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -238,87 +266,33 @@ class _Bar extends StatelessWidget {
       children: [
         Container(
           width: 24,
-          height: 120,
+          height: 80,
           alignment: Alignment.bottomCenter,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(12),
+            color: Colors.transparent,
           ),
           child: Container(
-            width: 24,
+            width: 12, // Thinner, more elegant bars
             height: height == 0 ? 0 : height + 10,
             decoration: BoxDecoration(
-              gradient: isToday ? AppColors.accentGradient : LinearGradient(
-                colors: [Colors.white.withValues(alpha: 0.5), Colors.white.withValues(alpha: 0.2)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: isToday ? AppColors.accentGlow(blur: 15, opacity: 0.3) : null,
+              color: isToday ? AppColors.sageGreen : AppColors.glassHover,
+              borderRadius: BorderRadius.circular(6),
+              boxShadow: isToday ? AppColors.glow(color: AppColors.sageGreen, blur: 20, opacity: 0.3) : null,
             ),
           )
               .animate(delay: 600.ms)
-              .scaleY(begin: 0, end: 1, duration: 800.ms, curve: Curves.easeOutBack, alignment: Alignment.bottomCenter),
+              .scaleY(begin: 0, end: 1, duration: 1000.ms, curve: Curves.easeOutCubic, alignment: Alignment.bottomCenter),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Text(
           day,
           style: TextStyle(
-            color: isToday ? AppColors.accent : AppColors.textSecondary,
-            fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-            fontSize: 13,
+            color: isToday ? AppColors.textPrimary : AppColors.textMuted,
+            fontWeight: isToday ? FontWeight.w600 : FontWeight.w400,
+            fontSize: 10,
           ),
         ),
       ],
-    );
-  }
-}
-
-class _Achievement extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String desc;
-
-  const _Achievement({required this.icon, required this.title, required this.desc});
-
-  @override
-  Widget build(BuildContext context) {
-    return GlassCard(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFFFD700).withValues(alpha: 0.3),
-                  blurRadius: 15,
-                ),
-              ],
-            ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 4),
-                Text(desc, style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -340,21 +314,21 @@ class _SmallStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: GlassCard(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(value, style: TextStyle(color: color, fontSize: 24, fontWeight: FontWeight.w400)),
                 const SizedBox(width: 4),
-                Text(unit, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11)),
+                Text(unit, style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
               ],
             ),
+            const SizedBox(height: 12),
+            Text(title, style: TextStyle(color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 1.5)),
           ],
         ),
       ),
@@ -362,24 +336,42 @@ class _SmallStatCard extends StatelessWidget {
   }
 }
 
-class _LegendDot extends StatelessWidget {
-  final Color color;
-  final String label;
+class _Achievement extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String desc;
 
-  const _LegendDot({required this.color, required this.label});
+  const _Achievement({required this.icon, required this.title, required this.desc});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(color: Colors.white, fontSize: 11)),
-      ],
+    return GlassCard(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppColors.glassHover,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.glassBorder, width: 0.5),
+            ),
+            child: Icon(icon, color: AppColors.sageGreen, size: 24),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500, fontSize: 16, letterSpacing: 1.0)),
+                const SizedBox(height: 6),
+                Text(desc, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

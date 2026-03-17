@@ -5,6 +5,8 @@ class EnvironmentCard extends StatelessWidget {
   final String subtitle;
   final String imageUrl;
   final Color baseColor;
+  final bool isPremium;
+  final bool isLocked;
   final VoidCallback onTap;
 
   const EnvironmentCard({
@@ -13,6 +15,8 @@ class EnvironmentCard extends StatelessWidget {
     required this.subtitle,
     required this.imageUrl,
     required this.baseColor,
+    this.isPremium = false,
+    this.isLocked = false,
     required this.onTap,
   });
 
@@ -31,7 +35,7 @@ class EnvironmentCard extends StatelessWidget {
               Image.network(
                 imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (context, error, stackTrace) => Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [baseColor, baseColor.withValues(alpha: 0.3)],
@@ -59,6 +63,17 @@ class EnvironmentCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    if (isPremium)
+                      Container(
+                        margin: const EdgeInsets.only(right: 12, bottom: 4),
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+                        ),
+                        child: const Icon(Icons.star, color: Colors.amber, size: 16),
+                      ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,7 +110,10 @@ class EnvironmentCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
                       ),
-                      child: const Icon(Icons.play_arrow_rounded, color: Colors.white),
+                      child: Icon(
+                        isLocked ? Icons.lock : Icons.play_arrow_rounded, 
+                        color: Colors.white
+                      ),
                     ),
                   ],
                 ),

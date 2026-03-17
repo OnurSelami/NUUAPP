@@ -11,8 +11,9 @@ class AppTheme {
       colorScheme: const ColorScheme.dark(
         primary: AppColors.accent,
         secondary: AppColors.accentSecondary,
-        surface: AppColors.bgMedium,
+        surface: AppColors.bgSurface,
       ),
+      // Using Outfit for the entire app to give a modern, premium feel
       textTheme: GoogleFonts.outfitTextTheme(
         ThemeData.dark().textTheme,
       ).apply(
@@ -22,6 +23,7 @@ class AppTheme {
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
       ),
       useMaterial3: true,
     );

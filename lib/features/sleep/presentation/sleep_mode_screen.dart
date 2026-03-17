@@ -7,7 +7,6 @@ import '../../../core/widgets/screen_wrapper.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/bottom_nav.dart';
 import '../../../core/widgets/particles.dart';
-import '../../../core/widgets/glass_button.dart';
 import 'sleep_controller.dart';
 
 class SleepModeScreen extends ConsumerStatefulWidget {
@@ -18,16 +17,15 @@ class SleepModeScreen extends ConsumerStatefulWidget {
 }
 
 class _SleepModeScreenState extends ConsumerState<SleepModeScreen> {
-  int selectedTimer = 30;
   String selectedSound = 'Rain';
 
   final sounds = [
-    _Sound('Rain', '🌧️'),
-    _Sound('Ocean', '🌊'),
-    _Sound('Forest', '🌲'),
-    _Sound('Fireplace', '🔥'),
-    _Sound('Wind', '🍃'),
-    _Sound('Night', '✨'),
+    _Sound('Rain', LucideIcons.cloudRain),
+    _Sound('Ocean', LucideIcons.waves),
+    _Sound('Forest', LucideIcons.trees),
+    _Sound('Fireplace', LucideIcons.flame),
+    _Sound('Wind', LucideIcons.wind),
+    _Sound('Night', LucideIcons.moon),
   ];
 
   @override
@@ -37,68 +35,77 @@ class _SleepModeScreenState extends ConsumerState<SleepModeScreen> {
     
     final selectedTimer = sleepState.selectedDuration;
     final isPlaying = sleepState.isPlaying;
+
     return ScreenWrapper(
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.bgDark,
         body: Stack(
           children: [
-            // Starry background
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.4,
-                child: Image.network(
-                  'https://images.unsplash.com/photo-1629446488105-122120352a03?w=800&q=80',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+            // Deep gradient background
             Positioned.fill(
               child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.bgDark.withValues(alpha: 0.6),
-                      AppColors.bgDark.withValues(alpha: 0.9),
-                    ],
-                  ),
+                decoration: const BoxDecoration(
+                  gradient: AppColors.bgGradient,
                 ),
               ),
             ),
+            
+            // Subtle slow particles
             const Positioned.fill(
-              child: Particles(count: 80, color: Colors.white),
+              child: Particles(count: 30, color: AppColors.textMuted),
             ),
 
             SafeArea(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 120),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Header
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Icon(LucideIcons.moon, color: AppColors.accent, size: 28),
-                        const SizedBox(width: 12),
                         const Text(
-                          'Sleep Mode',
-                          style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
-                        ),
+                          'REST',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 4.0,
+                          ),
+                        ).animate().fadeIn(duration: 800.ms),
+                        Icon(
+                          LucideIcons.moon,
+                          color: AppColors.sageGreen,
+                          size: 20,
+                        ).animate().fadeIn(duration: 800.ms, delay: 200.ms),
                       ],
-                    ).animate().fadeIn(duration: 600.ms),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Drift into peaceful sleep with calming sounds',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-                    ).animate().fadeIn(duration: 600.ms, delay: 100.ms),
+                    ),
 
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 60),
+
+                    // Main typography
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: const Text(
+                        'Drift into\ndeep recovery.',
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 42,
+                          fontWeight: FontWeight.w200,
+                          height: 1.1,
+                          letterSpacing: -1.0,
+                        ),
+                      ).animate().fadeIn(duration: 800.ms, delay: 300.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+                    ),
+
+                    const SizedBox(height: 60),
 
                     // Sleep timer
                     const Text(
-                      'Sleep Timer',
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-                    ).animate().fadeIn(duration: 600.ms, delay: 200.ms),
+                      'DURATION',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 2.0),
+                    ).animate().fadeIn(duration: 600.ms, delay: 400.ms),
                     const SizedBox(height: 16),
                     Row(
                       children: [0, 15, 30, 45, 60, 90].map((min) {
@@ -107,37 +114,38 @@ class _SleepModeScreenState extends ConsumerState<SleepModeScreen> {
                           child: GestureDetector(
                             onTap: () => sleepNotifier.setDuration(min),
                             child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
+                              duration: const Duration(milliseconds: 300),
                               margin: const EdgeInsets.symmetric(horizontal: 4),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               decoration: BoxDecoration(
-                                color: isSelected ? AppColors.accent.withValues(alpha: 0.2) : AppColors.glassWhite,
+                                color: isSelected ? AppColors.glassHover : Colors.transparent,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: isSelected ? AppColors.accent : AppColors.glassBorder,
+                                  color: isSelected ? AppColors.glassBorder : Colors.transparent,
                                 ),
                               ),
                               alignment: Alignment.center,
                               child: Text(
                                 min == 0 ? '∞' : '${min}m',
                                 style: TextStyle(
-                                  color: isSelected ? AppColors.accent : AppColors.textSecondary,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                  color: isSelected ? AppColors.textPrimary : AppColors.textMuted,
+                                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                                  fontSize: 14,
                                 ),
                               ),
                             ),
                           ),
                         );
                       }).toList(),
-                    ).animate().fadeIn(duration: 600.ms, delay: 300.ms),
+                    ).animate().fadeIn(duration: 600.ms, delay: 500.ms),
 
                     const SizedBox(height: 40),
 
                     // Sound selection
                     const Text(
-                      'Sleep Sounds',
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-                    ).animate().fadeIn(duration: 600.ms, delay: 400.ms),
+                      'AMBIENCE',
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 2.0),
+                    ).animate().fadeIn(duration: 600.ms, delay: 600.ms),
                     const SizedBox(height: 16),
                     GridView.builder(
                       shrinkWrap: true,
@@ -146,7 +154,7 @@ class _SleepModeScreenState extends ConsumerState<SleepModeScreen> {
                         crossAxisCount: 3,
                         mainAxisSpacing: 12,
                         crossAxisSpacing: 12,
-                        childAspectRatio: 0.85,
+                        childAspectRatio: 1.0,
                       ),
                       itemCount: sounds.length,
                       itemBuilder: (context, i) {
@@ -154,50 +162,62 @@ class _SleepModeScreenState extends ConsumerState<SleepModeScreen> {
                         final isSelected = sound.name == selectedSound;
                         return GlassCard(
                           onTap: () => setState(() => selectedSound = sound.name),
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(8),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.accent.withValues(alpha: 0.2)
-                                      : AppColors.glassWhite,
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: isSelected ? Border.all(color: AppColors.accent) : null,
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(sound.icon, style: const TextStyle(fontSize: 22)),
+                              Icon(
+                                sound.icon,
+                                size: 28,
+                                color: isSelected ? AppColors.sageGreen : AppColors.textMuted,
                               ),
                               const SizedBox(height: 12),
                               Text(
                                 sound.name,
                                 style: TextStyle(
-                                  color: isSelected ? AppColors.accent : Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 13,
+                                  color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
+                                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                                  fontSize: 12,
+                                  letterSpacing: 1.0,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
                             ],
                           ),
-                        ).animate().fadeIn(duration: 500.ms, delay: Duration(milliseconds: 500 + i * 80));
+                        ).animate().fadeIn(duration: 500.ms, delay: Duration(milliseconds: 700 + i * 50));
                       },
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 48),
 
-                    // Start button
+                    // Main Action Area (Play/Pause)
                     Center(
-                      child: GlassButton(
-                        label: isPlaying ? 'Pause Sleep' : 'Start Sleep',
-                        icon: isPlaying ? LucideIcons.pause : LucideIcons.moon,
-                        width: 220,
+                      child: GestureDetector(
                         onTap: () => sleepNotifier.toggleSleep(),
-                      ),
-                    ).animate().fadeIn(duration: 600.ms, delay: 800.ms),
+                        behavior: HitTestBehavior.opaque,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isPlaying ? AppColors.glassHover : Colors.transparent,
+                            border: Border.all(
+                              color: isPlaying ? AppColors.sageGreen : AppColors.glassBorder,
+                              width: 1,
+                            ),
+                            boxShadow: isPlaying ? AppColors.glow(color: AppColors.sageGreen, blur: 30, opacity: 0.2) : [],
+                          ),
+                          child: Icon(
+                            isPlaying ? LucideIcons.pause : LucideIcons.play,
+                            color: isPlaying ? AppColors.textPrimary : AppColors.textSecondary,
+                            size: 32,
+                          ),
+                        ),
+                      ).animate().fadeIn(duration: 800.ms, delay: 1000.ms).scaleXY(begin: 0.9, end: 1.0),
+                    ),
+                    
+                    const SizedBox(height: 120), // Space for bottom nav
                   ],
                 ),
               ),
@@ -212,6 +232,6 @@ class _SleepModeScreenState extends ConsumerState<SleepModeScreen> {
 
 class _Sound {
   final String name;
-  final String icon;
+  final IconData icon;
   _Sound(this.name, this.icon);
 }
