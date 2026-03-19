@@ -109,6 +109,12 @@ class HomeScreen extends ConsumerWidget {
                             angle: -3 * math.pi / 4, // Bottom Left
                             onTap: () => context.go('/escape'),
                           ),
+                          _AltarAction(
+                            icon: LucideIcons.zap,
+                            label: 'Go',
+                            angle: math.pi / 2, // Bottom Center
+                            onTap: () => context.push('/go-mode'),
+                          ),
                         ],
                       ),
                     ),

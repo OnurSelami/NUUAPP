@@ -22,6 +22,7 @@ import 'features/settings/presentation/premium_screen.dart';
 import 'features/auth/presentation/auth_screen.dart';
 import 'features/calm_pulse/presentation/calm_pulse_screen.dart';
 import 'features/tactile/presentation/tactile_menu_screen.dart';
+import 'features/calm_places/presentation/go_mode_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> main() async {
@@ -129,6 +130,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/tactile',
       builder: (context, state) => const TactileMenuScreen(),
+    ),
+    GoRoute(
+      path: '/go-mode',
+      builder: (context, state) => const GoModeScreen(),
     ),
   ],
 );
