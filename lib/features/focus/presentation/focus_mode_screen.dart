@@ -26,7 +26,7 @@ class FocusModeScreen extends ConsumerWidget {
     
     return ScreenWrapper(
       child: Scaffold(
-        backgroundColor: AppColors.bgDark,
+        backgroundColor: Colors.transparent,
         body: Stack(
           children: [
             // Deep gradient background
@@ -102,14 +102,15 @@ class FocusModeScreen extends ConsumerWidget {
                       duration: 400.ms,
                       child: IgnorePointer(
                         ignoring: isRunning,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 16,
+                          runSpacing: 12,
                           children: durations.map((d) {
                             final isSelected = d == selectedMinutes;
                             return GestureDetector(
                               onTap: () => focusNotifier.setDuration(d),
                               child: Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 8),
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                 decoration: BoxDecoration(
                                   color: isSelected ? AppColors.glassHover : Colors.transparent,

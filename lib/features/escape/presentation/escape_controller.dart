@@ -55,6 +55,34 @@ final availableEnvironments = [
     ],
     isPremium: true,
   ),
+  Environment(
+    id: 'sleep',
+    title: 'Deep Sleep',
+    subtitle: 'Rain and white noise',
+    icon: Icons.bedtime,
+    baseColor: const Color(0xFF14142B),
+    imageUrl: 'https://images.unsplash.com/photo-1517436073-3b1b16d9b0f4?w=800&q=80',
+    audioLayers: [
+      const AudioLayer.asset(id: 'deep_sleep', name: 'Sleeping Drone', assetPath: 'assets/audio/deep_sleep.mp3', defaultVolume: 0.6),
+      const AudioLayer.asset(id: 'rain_base', name: 'Light Rain', assetPath: 'assets/audio/rain_base.mp3', defaultVolume: 0.4),
+      const AudioLayer.asset(id: 'white_noise', name: 'White Noise', assetPath: 'assets/audio/white_noise.mp3', defaultVolume: 0.2),
+    ],
+  ),
+  Environment(
+    id: 'tinnitus',
+    title: 'Tinnitus Relief',
+    subtitle: 'Clinical masking therapy',
+    icon: Icons.graphic_eq, // Sound wave icon
+    baseColor: const Color(0xFF2A2A35),
+    imageUrl: 'https://images.unsplash.com/photo-1518112166137-85f9979a43dd?w=800&q=80',
+    audioLayers: [
+      const AudioLayer.asset(id: 'rain_pink', name: 'Pink Noise (Rain)', assetPath: 'assets/audio/rain_base.mp3', defaultVolume: 0.6),
+      const AudioLayer.asset(id: 'ocean_brown', name: 'Brown Noise (Ocean)', assetPath: 'assets/audio/ocean_base.mp3', defaultVolume: 0.4),
+      const AudioLayer.asset(id: 'forest_high', name: 'High Freq Masker', assetPath: 'assets/audio/forest_base.mp3', defaultVolume: 0.3),
+      const AudioLayer.asset(id: 'white_noise', name: 'White Noise', assetPath: 'assets/audio/white_noise.mp3', defaultVolume: 0.0),
+    ],
+    isPremium: true,
+  ),
 ];
 
 class EscapeController extends Notifier<EscapeState> {

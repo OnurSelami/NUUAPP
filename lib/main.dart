@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,19 +11,15 @@ import 'core/routing/home_screen.dart';
 import 'features/escape/presentation/escape_environment_screen.dart';
 import 'features/escape/presentation/escape_player_screen.dart';
 import 'features/focus/presentation/focus_mode_screen.dart';
-import 'features/sleep/presentation/sleep_mode_screen.dart';
-import 'features/stats/presentation/statistics_screen.dart';
 import 'features/stats/presentation/stats_controller.dart';
-import 'features/calm_places/presentation/calm_places_home_screen.dart';
-import 'features/calm_places/presentation/calm_places_map_screen.dart';
-import 'features/calm_places/presentation/calm_places_list_screen.dart';
-import 'features/calm_places/presentation/saved_places_screen.dart';
-import 'features/settings/presentation/settings_screen.dart';
+import 'features/stats/presentation/analytics_screen.dart';
+import 'features/profile/presentation/profile_screen.dart';
 import 'features/settings/presentation/premium_screen.dart';
 import 'features/auth/presentation/auth_screen.dart';
+import 'features/calm_pulse/domain/breath_pattern.dart';
 import 'features/calm_pulse/presentation/calm_pulse_screen.dart';
-import 'features/tactile/presentation/tactile_menu_screen.dart';
-import 'features/calm_places/presentation/go_mode_screen.dart';
+import 'features/calm_pulse/presentation/breath_library_screen.dart';
+import 'features/calm_pulse/presentation/guided_breath_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> main() async {
@@ -40,8 +37,33 @@ Future<void> main() async {
   );
 }
 
-class NuuApp extends StatelessWidget {
+class NuuApp extends ConsumerStatefulWidget {
   const NuuApp({super.key});
+
+  @override
+  ConsumerState<NuuApp> createState() => _NuuAppState();
+}
+
+class _NuuAppState extends ConsumerState<NuuApp> {
+  @override
+  void initState() {
+    super.initState();
+    HomeWidget.setAppGroupId('group.com.nuu.nuu_app');
+
+    // Foreground click handling
+    HomeWidget.widgetClicked.listen(_handleWidgetDeepLink);
+
+    // Background/Cold launch handling
+    HomeWidget.initiallyLaunchedFromHomeWidget().then(_handleWidgetDeepLink);
+  }
+
+  void _handleWidgetDeepLink(Uri? uri) {
+    if (uri != null) {
+      if (uri.host == 'calmpulse' || uri.path == '/calm-pulse') {
+        _router.push('/calm-pulse');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,32 +114,12 @@ final GoRouter _router = GoRouter(
       builder: (context, state) => const FocusModeScreen(),
     ),
     GoRoute(
-      path: '/sleep',
-      builder: (context, state) => const SleepModeScreen(),
+      path: '/analytics',
+      builder: (context, state) => const AnalyticsScreen(),
     ),
     GoRoute(
-      path: '/statistics',
-      builder: (context, state) => const StatisticsScreen(),
-    ),
-    GoRoute(
-      path: '/calm-places',
-      builder: (context, state) => const CalmPlacesHomeScreen(),
-    ),
-    GoRoute(
-      path: '/calm-places/map',
-      builder: (context, state) => const CalmPlacesMapScreen(),
-    ),
-    GoRoute(
-      path: '/calm-places/list',
-      builder: (context, state) => const CalmPlacesListScreen(),
-    ),
-    GoRoute(
-      path: '/calm-places/saved',
-      builder: (context, state) => const SavedPlacesScreen(),
-    ),
-    GoRoute(
-      path: '/settings',
-      builder: (context, state) => const SettingsScreen(),
+      path: '/profile',
+      builder: (context, state) => const ProfileScreen(),
     ),
     GoRoute(
       path: '/premium',
@@ -128,12 +130,15 @@ final GoRouter _router = GoRouter(
       builder: (context, state) => const CalmPulseScreen(),
     ),
     GoRoute(
-      path: '/tactile',
-      builder: (context, state) => const TactileMenuScreen(),
+      path: '/guided-breath',
+      builder: (context, state) {
+        final pattern = state.extra as BreathPattern?;
+        return GuidedBreathScreen(pattern: pattern ?? BreathingPatterns.resonance);
+      },
     ),
     GoRoute(
-      path: '/go-mode',
-      builder: (context, state) => const GoModeScreen(),
+      path: '/breathe',
+      builder: (context, state) => const BreathLibraryScreen(),
     ),
   ],
 );

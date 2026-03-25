@@ -14,6 +14,7 @@ class AppColors {
   // Keeping legacy accent names but shifting their colors for compatibility
   static const Color accent = sageGreen;
   static const Color accentSecondary = softIris;
+  static const Color accentOrange = Color(0xFFE87A5D); // Burnt orange for flames
 
   // Glassmorphism System
   static const Color glassWhite = Color(0x05FFFFFF); // extremely subtle white overlay

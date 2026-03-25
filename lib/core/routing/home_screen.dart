@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +7,9 @@ import '../theme/app_colors.dart';
 import '../widgets/screen_wrapper.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/particles.dart';
+import '../../features/energy_map/presentation/energy_map_controller.dart';
+import '../../features/energy_map/presentation/energy_log_sheet.dart';
+import '../../features/let_it_burn/presentation/let_it_burn_widget.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -17,7 +18,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ScreenWrapper(
       child: Scaffold(
-        backgroundColor: AppColors.bgDark,
+        backgroundColor: Colors.transparent,
         body: Stack(
           children: [
             // Deep gradient background
@@ -77,51 +78,106 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
 
-                  // Orbiting Actions
-                  Center(
-                    child: SizedBox(
-                      width: 280,
-                      height: 280,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          _AltarAction(
-                            icon: LucideIcons.focus,
-                            label: 'Focus',
-                            angle: -math.pi / 4, // Top Left
-                            onTap: () => context.go('/focus'),
-                          ),
-                          _AltarAction(
-                            icon: LucideIcons.moon,
-                            label: 'Sleep',
-                            angle: math.pi / 4, // Top Right
-                            onTap: () => context.go('/sleep'),
-                          ),
-                          _AltarAction(
-                            icon: LucideIcons.waves,
-                            label: 'Tactile',
-                            angle: 3 * math.pi / 4, // Bottom Right
-                            onTap: () => context.push('/tactile'),
-                          ),
-                          _AltarAction(
-                            icon: LucideIcons.wind,
-                            label: 'Escape',
-                            angle: -3 * math.pi / 4, // Bottom Left
-                            onTap: () => context.go('/escape'),
-                          ),
-                          _AltarAction(
-                            icon: LucideIcons.zap,
-                            label: 'Go',
-                            angle: math.pi / 2, // Bottom Center
-                            onTap: () => context.push('/go-mode'),
-                          ),
-                        ],
-                      ),
+                  // Smart Insight, Let It Burn, & Sounds Shortcut
+                  Positioned(
+                    bottom: 100,
+                    left: 0,
+                    right: 0,
+                    child: Column(
+                      children: [
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final insight = ref.watch(energyMapProvider.notifier).getSmartInsight();
+                            
+                            return Text(
+                              insight,
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.center,
+                            ).animate().fadeIn(duration: 800.ms, delay: 800.ms);
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () => context.go('/escape'),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.glassWhite.withValues(alpha: 0.05),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: AppColors.glassBorder),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(LucideIcons.headphones, color: AppColors.textSecondary, size: 16),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      'Sounds',
+                                      style: TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ).animate().fadeIn(duration: 800.ms, delay: 1000.ms),
+                            const SizedBox(width: 16),
+                            GestureDetector(
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (_) => const EnergyLogSheet(),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.glassWhite.withValues(alpha: 0.05),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: AppColors.glassBorder),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(LucideIcons.activity, color: AppColors.sageGreen, size: 16),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      'Log Energy',
+                                      style: TextStyle(
+                                        color: AppColors.sageGreen,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ).animate().fadeIn(duration: 800.ms, delay: 1100.ms),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 24),
+                          child: LetItBurnWidget(),
+                        ).animate().fadeIn(duration: 800.ms, delay: 1200.ms),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
+
             const BottomNav(),
           ],
         ),
@@ -195,71 +251,3 @@ class _AltarOrbState extends State<_AltarOrb> with SingleTickerProviderStateMixi
   }
 }
 
-class _AltarAction extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final double angle;
-  final VoidCallback onTap;
-
-  const _AltarAction({
-    required this.icon,
-    required this.label,
-    required this.angle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // Distance from center
-    const double radius = 130.0;
-    
-    return Transform.translate(
-      offset: Offset(
-        radius * math.cos(angle),
-        radius * math.sin(angle),
-      ),
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(32),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.glassWhite,
-                    border: Border.all(
-                      color: AppColors.glassBorder,
-                      width: 0.5,
-                    ),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: AppColors.textSecondary,
-                    size: 22,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label.toUpperCase(),
-              style: const TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 10,
-                letterSpacing: 2.0,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ).animate().fadeIn(duration: 800.ms, delay: 400.ms).scale(begin: const Offset(0.8, 0.8)),
-    );
-  }
-}

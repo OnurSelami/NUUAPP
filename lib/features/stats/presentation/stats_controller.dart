@@ -7,20 +7,24 @@ class UserStats {
   final int focusMinutes;
   final int sleepMinutes;
   final int escapeMinutes;
+  final int breatheMinutes;
   final int currentStreak;
   final int sessionsCompleted;
   final String lastSessionDate;
   final Map<String, int> dailyMinutes; // Format: 'yyyy-MM-dd' -> minutes
+  final int totalBreaths;
 
   const UserStats({
     this.totalMinutes = 0,
     this.focusMinutes = 0,
     this.sleepMinutes = 0,
     this.escapeMinutes = 0,
+    this.breatheMinutes = 0,
     this.currentStreak = 0,
     this.sessionsCompleted = 0,
     this.lastSessionDate = '',
     this.dailyMinutes = const {},
+    this.totalBreaths = 0,
   });
 
   UserStats copyWith({
@@ -28,20 +32,24 @@ class UserStats {
     int? focusMinutes,
     int? sleepMinutes,
     int? escapeMinutes,
+    int? breatheMinutes,
     int? currentStreak,
     int? sessionsCompleted,
     String? lastSessionDate,
     Map<String, int>? dailyMinutes,
+    int? totalBreaths,
   }) {
     return UserStats(
       totalMinutes: totalMinutes ?? this.totalMinutes,
       focusMinutes: focusMinutes ?? this.focusMinutes,
       sleepMinutes: sleepMinutes ?? this.sleepMinutes,
       escapeMinutes: escapeMinutes ?? this.escapeMinutes,
+      breatheMinutes: breatheMinutes ?? this.breatheMinutes,
       currentStreak: currentStreak ?? this.currentStreak,
       sessionsCompleted: sessionsCompleted ?? this.sessionsCompleted,
       lastSessionDate: lastSessionDate ?? this.lastSessionDate,
       dailyMinutes: dailyMinutes ?? this.dailyMinutes,
+      totalBreaths: totalBreaths ?? this.totalBreaths,
     );
   }
 }
@@ -71,10 +79,12 @@ class StatsController extends Notifier<UserStats> {
       focusMinutes: prefs.getInt('focusMinutes') ?? 0,
       sleepMinutes: prefs.getInt('sleepMinutes') ?? 0,
       escapeMinutes: prefs.getInt('escapeMinutes') ?? 0,
+      breatheMinutes: prefs.getInt('breatheMinutes') ?? 0,
       currentStreak: prefs.getInt('currentStreak') ?? 0,
       sessionsCompleted: prefs.getInt('sessionsCompleted') ?? 0,
       lastSessionDate: prefs.getString('lastSessionDate') ?? '',
       dailyMinutes: dailyMinutes,
+      totalBreaths: prefs.getInt('totalBreaths') ?? 0,
     );
   }
 
@@ -90,6 +100,7 @@ class StatsController extends Notifier<UserStats> {
     final newFocus = category == 'focus' ? state.focusMinutes + minutes : state.focusMinutes;
     final newSleep = category == 'sleep' ? state.sleepMinutes + minutes : state.sleepMinutes;
     final newEscape = category == 'escape' ? state.escapeMinutes + minutes : state.escapeMinutes;
+    final newBreathe = category == 'breathe' ? state.breatheMinutes + minutes : state.breatheMinutes;
     final newSessions = state.sessionsCompleted + 1;
 
     // 2. Calculate daily record
@@ -123,6 +134,7 @@ class StatsController extends Notifier<UserStats> {
       focusMinutes: newFocus,
       sleepMinutes: newSleep,
       escapeMinutes: newEscape,
+      breatheMinutes: newBreathe,
       sessionsCompleted: newSessions,
       currentStreak: newStreak,
       lastSessionDate: todayStr,
@@ -134,10 +146,21 @@ class StatsController extends Notifier<UserStats> {
     prefs.setInt('focusMinutes', newFocus);
     prefs.setInt('sleepMinutes', newSleep);
     prefs.setInt('escapeMinutes', newEscape);
+    prefs.setInt('breatheMinutes', newBreathe);
     prefs.setInt('sessionsCompleted', newSessions);
     prefs.setInt('currentStreak', newStreak);
     prefs.setString('lastSessionDate', todayStr);
     prefs.setString('dailyMinutes', jsonEncode(newDaily));
+  }
+
+  void addBreaths(int count) {
+    if (count <= 0) return;
+    
+    final prefs = ref.read(sharedPreferencesProvider);
+    final newTotalBreaths = state.totalBreaths + count;
+    
+    state = state.copyWith(totalBreaths: newTotalBreaths);
+    prefs.setInt('totalBreaths', newTotalBreaths);
   }
 }
 

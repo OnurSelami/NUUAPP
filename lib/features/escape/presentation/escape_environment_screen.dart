@@ -34,9 +34,33 @@ class EscapeEnvironmentScreen extends ConsumerWidget {
                           child: const Icon(LucideIcons.arrowLeft, color: Colors.white),
                         ),
                         const SizedBox(width: 16),
-                        const Text(
-                          'Escape Environments',
-                          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                        const Expanded(
+                          child: Text(
+                            'Sounds',
+                            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => context.push('/focus'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.glassWhite,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.glassBorder),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(LucideIcons.focus, color: AppColors.accent, size: 16),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Focus Timer',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     )
